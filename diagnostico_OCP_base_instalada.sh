@@ -3,8 +3,8 @@
 # ***************************************************************************************************
 # * - DESCRIPCION: Shell para obtener INSTALLED BASE REPORT (Incluye IBM CP4BA)                     *
 # * - EJECUCION:   SHELL                                                                            *
-# * - AUTOR:           Guerra Arnaiz, Cesar Ricardo                                                 *
-# * - MODIFICADO POR:  Sebastiani Sobenes, Felipe Roberto                                           *
+# * - AUTOR:           Guerra Arnaiz, Cesar Ricardo        - CUSTOMER SUCCESS MANAGER AT IBM        *
+# * - MODIFICADO POR:  Sebastiani Sobenes, Felipe Roberto  - CUSTOMER SUCCESS MANAGER AT IBM        *
 # * - FECHA:       04/12/2025                                                                       *
 # * - VERSION:     2.1 (CP4BA Enhanced)                                                             *
 # ***************************************************************************************************

@@ -144,7 +144,7 @@ gestionar_y_ejecutar "dmesg" "util-linux" "Logs Kernel (Errores)" "dmesg | grep 
 # 5. TRANSACCIONES (Estimación Logs)
 # ==============================================================================
 # find y grep suelen venir por defecto (findutils, grep)
-RUTA_LOGS_BUSQUEDA="/opt/ibm /var/log/ibm /home/was"
+RUTA_LOGS_BUSQUEDA="/opt/ibm /opt/IBM /opt/ibm/db2 /var/log/ibm /home/was /usr/local /opt/IBM/FileNet /opt/IBM/ODM /opt/IBM/BPM"
 
 gestionar_y_ejecutar "find" "findutils" "Búsqueda Logs Actividad" \
     "find $RUTA_LOGS_BUSQUEDA -name 'SystemOut.log' -o -name 'messages.log' 2>/dev/null | xargs tail -n 1000 | grep -i 'J2CA\|PMRM\|WTRN' || echo 'No logs found'" \

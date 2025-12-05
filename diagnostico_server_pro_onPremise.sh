@@ -6,8 +6,8 @@
 SCRIPT_AUTOR="FELIPE SEBASTIANI - CUSTOMER SUCCESS MANAGER AT IBM"
 SCRIPT_VERSION="1.2.1"
 SCRIPT_FECHA_REV="2025-12-04"
-SCRIPT_DESC="Diagnóstico integral para servidores Linux con IBM ODM/BAW/FileNet"
-
+SCRIPT_DESC1="Diagnóstico integral para servidores Linux con adicionales IBM ODM/BAW/FileNet"
+SCRIPT_DESC2="Requiere permisos de root y teener desplegado el utilitario jq (https://jqlang.org/download/)"
 # ==============================================================================
 # FUNCIÓN: IMPRIMIR ENCABEZADO
 # ==============================================================================
@@ -18,7 +18,8 @@ imprimir_banner() {
     echo "=============================================================================="
     echo "  > Autor       : $SCRIPT_AUTOR"
     echo "  > Versión     : $SCRIPT_VERSION ($SCRIPT_FECHA_REV)"
-    echo "  > Descripción : $SCRIPT_DESC"
+    echo "  > Descripción : $SCRIPT_DESC1"
+    echo "  $SCRIPT_DESC2"
     echo "  > Ejecutado el: $(date)"
     echo "=============================================================================="
     echo ""

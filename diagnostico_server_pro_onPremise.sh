@@ -4,10 +4,10 @@
 # METADATOS DEL SCRIPT
 # ==============================================================================
 SCRIPT_AUTOR="FELIPE SEBASTIANI - CUSTOMER SUCCESS MANAGER AT IBM"
-SCRIPT_VERSION="1.2.1"
-SCRIPT_FECHA_REV="2025-12-04"
+SCRIPT_VERSION="1.2.3"
+SCRIPT_FECHA_REV=$(date +"%Y-%m-%d_%I-%M-%S-%p")
 SCRIPT_DESC1="Diagnóstico integral para servidores Linux con adicionales IBM ODM/BAW/FileNet"
-SCRIPT_DESC2="Requiere permisos de root y teener desplegado el utilitario jq (https://jqlang.org/download/)"
+SCRIPT_DESC2="Requiere permisos de root y tener desplegado utilitarios jq (https://jqlang.org/download/), sysstat (https://sysstat.github.io/), mpstat"
 # ==============================================================================
 # FUNCIÓN: IMPRIMIR ENCABEZADO
 # ==============================================================================
@@ -19,7 +19,7 @@ imprimir_banner() {
     echo "  > Autor       : $SCRIPT_AUTOR"
     echo "  > Versión     : $SCRIPT_VERSION ($SCRIPT_FECHA_REV)"
     echo "  > Descripción : $SCRIPT_DESC1"
-    echo "  $SCRIPT_DESC2"
+    echo "  > $SCRIPT_DESC2"
     echo "  > Ejecutado el: $(date)"
     echo "=============================================================================="
     echo ""
@@ -213,17 +213,75 @@ gestionar_y_ejecutar "find" "findutils" "Identidad BAW (SWID Tags)" \
 # B. Case Manager
 gestionar_y_ejecutar "find" "findutils" "Ruta Case Management" \
     "find $RUTAS_IBM -type d -name 'CaseManagement' 2>/dev/null || echo 'Componente Case no encontrado'" \
-    "11_baw_case_path.txt"
+    "12_baw_case_path.txt"
 
 # C. Logs Case
 gestionar_y_ejecutar "find" "findutils" "Logs Errores Case (ICM)" \
     "find $RUTAS_IBM -name 'SystemOut.log' 2>/dev/null | xargs tail -n 500 | grep -E 'ICM|CPEC|CaseClient' || echo 'Sin errores recientes de Case'" \
-    "11_baw_case_errors.txt"
+    "13_baw_case_errors.txt"
 
 # D. Content Navigator
 gestionar_y_ejecutar "ps" "procps-ng" "Procesos ICN (Navigator)" \
     "ps -ef | grep -i 'nexus' | grep -v grep || echo 'Proceso Navigator no evidente'" \
-    "11_baw_navigator_proc.txt"
+    "14_baw_navigator_proc.txt"
+
+
+
+audit_java() {
+    local OUTfile="${DIRECTORIO_BASE}/15_java_installed_details.txt"
+    
+    # Iniciar archivo (o limpiarlo si existe)
+    echo "==========================================" > "$OUTfile"
+    echo " REPORTE DE INSTALACIÓN JAVA" >> "$OUTfile"
+    echo " Fecha: $(date +'%Y-%m-%d %H:%M:%S')" >> "$OUTfile"
+    echo " Sistema: $(cat /etc/os-release | grep -w "NAME" | cut -d= -f2 | tr -d '\"')" >> "$OUTfile"
+    echo "==========================================" >> "$OUTfile"
+
+    # 1. VERIFICAR SI JAVA ES ACCESIBLE EN EL PATH (JAVA PRINCIPAL)
+    if command -v java &> /dev/null; then
+        echo -e "\n[+] JAVA PRINCIPAL (ACTIVO EN PATH):" >> "$OUTfile"
+        
+        # Obtener la ruta real resolviendo enlaces simbólicos
+        local main_path=$(readlink -f $(command -v java))
+        echo "    Ruta binario: $main_path" >> "$OUTfile"
+        
+        # Obtener versión (Java imprime la versión en stderr, por eso 2>&1)
+        echo "    Versión detectada:" >> "$OUTfile"
+        java -version 2>&1 | sed 's/^/        /' >> "$OUTfile"
+    else
+        echo -e "\n[!] JAVA NO DETECTADO EN EL PATH ACTUAL." >> "$OUTfile"
+        echo "No se encontraron instalaciones adicionales." >> "$OUTfile"
+        return
+    fi
+
+    # 2. BUSCAR OTRAS INSTALACIONES (USANDO ALTERNATIVES)
+    echo -e "\n[+] OTRAS INSTALACIONES / LISTA COMPLETA:" >> "$OUTfile"
+    echo "    (Rutas registradas en el sistema alternatives)" >> "$OUTfile"
+
+    # Lógica híbrida para Debian/Ubuntu y RHEL
+    if command -v update-alternatives &> /dev/null; then
+        # Método Ubuntu/Debian (y algunos RHEL modernos)
+        # Intentamos --list primero (común en Debian)
+        if ! update-alternatives --list java 2>>"$OUTfile" >> "$OUTfile"; then
+             # Si falla --list, intentamos parsing de --display (RHEL fallback)
+             alternatives --display java | grep -E '^/' | awk '{print "    - " $1}' >> "$OUTfile"
+        fi
+    elif command -v alternatives &> /dev/null; then
+        # Método RHEL Legacy / CentOS puro
+        alternatives --display java | grep -E '^/' | awk '{print "    - " $1}' >> "$OUTfile"
+    else
+        echo "    No se pudo consultar el comando 'update-alternatives' o 'alternatives'." >> "$OUTfile"
+    fi
+
+    # Marcar cuál es la principal visualmente en la lista
+    # (Buscamos la ruta principal dentro del archivo y le agregamos una marca si se desea, 
+    # pero ya está explicito en la sección 1).
+
+    echo -e "\nReporte generado exitosamente en: $OUTfile"
+    cat "$OUTfile"
+}
+
+audit_java
 
 # ==============================================================================
 # CIERRE
